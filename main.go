@@ -1,9 +1,19 @@
-// Copyright 2015 The Gorilla WebSocket Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/* Chiwigames Community games
+Copyright (C) 2024 Anïs Khoury Ribas
 
-//go:build ignore
-// +build ignore
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 package main
 
@@ -26,14 +36,19 @@ type user struct {
 	contador  int
 	m         sync.Mutex
 }
+type channel struct{
+	name string
+	users []user
 
+}
 // var users [string]websocket.Conn
 var users = make(map[net.Conn]user)
+var channels = make(map[string]channel)
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
-func echo(w http.ResponseWriter, r *http.Request) {
+func chat(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 
 	//fmt.Printf("%+v\n", users)
@@ -47,7 +62,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	//Try login with user & password
 	var userClient string
 	var passClient string
-	//Try login with user & password
+
 	mt, getUserPassword, err := c.ReadMessage()
 	if err != nil {
 		log.Println("read:", err)
@@ -93,16 +108,18 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Println("Desconexio del socket")
+	//TODO: Delete conection from users 
+	//TODO: Delete conection from channels
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
+	homeTemplate.Execute(w, "ws://"+r.Host+"/chat")
 }
 
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
-	http.HandleFunc("/echo", echo)
+	http.HandleFunc("/chat", chat)
 	http.HandleFunc("/", home)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
