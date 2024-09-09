@@ -36,11 +36,11 @@ type user struct {
 	contador  int
 	m         sync.Mutex
 }
-type channel struct{
-	name string
+type channel struct {
+	name  string
 	users []user
-
 }
+
 // var users [string]websocket.Conn
 var users = make(map[net.Conn]user)
 var channels = make(map[string]channel)
@@ -108,7 +108,7 @@ func chat(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Println("Desconexio del socket")
-	//TODO: Delete conection from users 
+	//TODO: Delete conection from users
 	//TODO: Delete conection from channels
 }
 
@@ -117,6 +117,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	showtext("prova")
 	flag.Parse()
 	log.SetFlags(0)
 	http.HandleFunc("/chat", chat)
